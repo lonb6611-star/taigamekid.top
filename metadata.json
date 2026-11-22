@@ -1,0 +1,6 @@
+{
+  "name": "taigamekid",
+  "description": "Kho tải game PC miễn phí tốc độ cao, an toàn với giao diện tối hiện đại và hệ thống lưu trữ bền vững.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
