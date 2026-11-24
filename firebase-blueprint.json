@@ -1,0 +1,358 @@
+{
+  "entities": {
+    "Game": {
+      "title": "Game",
+      "description": "Free PC game catalog item displayed in the taigamekid store.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "coverUrl": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "category": {
+          "type": "string",
+          "enum": ["hack", "normal"]
+        },
+        "genre": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "size": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "downloadUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "review": {
+          "type": "string",
+          "maxLength": 10000
+        },
+        "installGuide": {
+          "type": "array",
+          "description": "Ordered list of installation instructions (max 30 steps)."
+        },
+        "downloadsCount": {
+          "type": "number"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "coverUrl",
+        "category",
+        "genre",
+        "version",
+        "size",
+        "downloadUrl",
+        "review",
+        "installGuide",
+        "downloadsCount",
+        "updatedAt"
+      ]
+    },
+    "EarnLink": {
+      "title": "EarnLink",
+      "description": "Public shortlink earning task metadata without secret passCode.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "rewardPerPass": {
+          "type": "number"
+        },
+        "maxPasses": {
+          "type": "number"
+        },
+        "completedCount": {
+          "type": "number"
+        },
+        "requiresCode": {
+          "type": "boolean"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "url",
+        "rewardPerPass",
+        "maxPasses",
+        "completedCount",
+        "requiresCode",
+        "updatedAt"
+      ]
+    },
+    "EarnLinkSecret": {
+      "title": "EarnLinkSecret",
+      "description": "Admin-only verification passCode for an earn-link task.",
+      "type": "object",
+      "properties": {
+        "linkId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "passCode": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["linkId", "passCode", "updatedAt"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Private authenticated user profile storing PII, balance, and completed task map.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 160
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "user"]
+        },
+        "balance": {
+          "type": "number"
+        },
+        "completedTasks": {
+          "type": "number"
+        },
+        "earnPasses": {
+          "type": "object"
+        },
+        "lastClaimTxId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "email",
+        "displayName",
+        "role",
+        "balance",
+        "completedTasks",
+        "earnPasses",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Individual earn-link reward claim transaction owned by a user.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "userId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "linkId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "linkTitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "amount": {
+          "type": "number"
+        },
+        "submittedCode": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "type": {
+          "type": "string",
+          "enum": ["earn"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "linkId",
+        "linkTitle",
+        "amount",
+        "submittedCode",
+        "type",
+        "createdAt"
+      ]
+    },
+    "LeaderboardEntry": {
+      "title": "LeaderboardEntry",
+      "description": "Public non-PII balance ranking record for top users.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "balance": {
+          "type": "number"
+        },
+        "completedTasks": {
+          "type": "number"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "displayName", "balance", "completedTasks", "updatedAt"]
+    },
+    "SiteMeta": {
+      "title": "SiteMeta",
+      "description": "Global announcement cycle countdown, revision metadata, and maintenance schedule.",
+      "type": "object",
+      "properties": {
+        "countdownEndTime": {
+          "type": "number"
+        },
+        "serverRevision": {
+          "type": "number"
+        },
+        "lastUpdatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "maintenanceActive": {
+          "type": "boolean"
+        },
+        "maintenanceEndTime": {
+          "type": "number"
+        },
+        "maintenanceMessage": {
+          "type": "string",
+          "maxLength": 300
+        }
+      },
+      "required": ["countdownEndTime", "serverRevision", "lastUpdatedAt"]
+    }
+  },
+  "firestore": {
+    "/games/{gameId}": {
+      "schema": { "$ref": "#/entities/Game" },
+      "description": "Public PC game catalog documents."
+    },
+    "/earnLinks/{linkId}": {
+      "schema": { "$ref": "#/entities/EarnLink" },
+      "description": "Public earn-link tasks without secret passCodes."
+    },
+    "/earnLinkSecrets/{linkId}": {
+      "schema": { "$ref": "#/entities/EarnLinkSecret" },
+      "description": "Admin-only verification codes for earn-link tasks."
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private user profile documents (PII isolated to owner or admin)."
+    },
+    "/users/{userId}/transactions/{txId}": {
+      "schema": { "$ref": "#/entities/Transaction" },
+      "description": "Private earn-link reward claim transaction history."
+    },
+    "/leaderboard/{userId}": {
+      "schema": { "$ref": "#/entities/LeaderboardEntry" },
+      "description": "Public non-PII top-balance leaderboard entries."
+    },
+    "/siteMeta/{metaId}": {
+      "schema": { "$ref": "#/entities/SiteMeta" },
+      "description": "Global server cycle countdown and revision metadata."
+    }
+  }
+}

@@ -20,30 +20,24 @@ export function GuideSection() {
   return (
     <section
       id="guide-section"
-      className="border-t border-white/10 bg-[#090B12] py-14 lg:py-16"
+      className="border-t border-white/10 bg-[#090B12] py-10 lg:py-12"
     >
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-        <div className="max-w-2xl">
-          <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
-            Quy trình tải & cài đặt chuẩn
-          </h2>
-          <p className="mt-2 text-sm text-slate-400">
-            Ba bước đơn giản giúp bạn tải game an toàn, hạn chế lỗi thiếu file và sẵn sàng trải
-            nghiệm ngay.
-          </p>
-        </div>
+        <h2 className="font-display text-xl font-bold tracking-tight text-white sm:text-2xl">
+          Hướng dẫn tải &amp; cài đặt nhanh
+        </h2>
 
-        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-3">
           {steps.map((step) => (
             <div
               key={step.num}
-              className="rounded-2xl border border-white/10 bg-[#0D1019] p-6 transition-colors hover:border-purple-400/35"
+              className="rounded-2xl border border-white/10 bg-[#0D1019] p-5 transition-colors hover:border-purple-400/35"
             >
-              <span className="font-mono text-sm font-semibold text-cyan-300">{step.num}</span>
-              <h3 className="mt-2.5 font-display text-lg font-semibold text-white">
+              <span className="font-mono text-xs font-semibold text-cyan-300">{step.num}</span>
+              <h3 className="mt-2 font-display text-base font-semibold text-white">
                 {step.title}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-400">{step.desc}</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate-400">{step.desc}</p>
             </div>
           ))}
         </div>

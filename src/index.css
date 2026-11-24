@@ -12,6 +12,7 @@
     scroll-behavior: smooth;
     background-color: #07080d;
     color: #f1f5f9;
+    -webkit-tap-highlight-color: transparent;
   }
 
   h1, h2, h3, .font-display {
@@ -22,6 +23,15 @@
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
   }
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* Subtle neon accent utilities */
@@ -61,3 +71,69 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #2e3752;
 }
+
+@keyframes toast-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-reward-shake {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.94);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.02) rotate(-1deg);
+  }
+  48% {
+    transform: translateX(-4px) rotate(1deg) scale(1.02);
+  }
+  65% {
+    transform: translateX(4px) rotate(-0.8deg) scale(1.01);
+  }
+  82% {
+    transform: translateX(-2px) rotate(0.4deg) scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes toast-progress-shrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.animate-toast-in {
+  animation: toast-slide-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-toast-reward {
+  animation: toast-reward-shake 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-toast-progress {
+  transform-origin: left center;
+  animation: toast-progress-shrink 4.2s linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-toast-in,
+  .animate-toast-reward,
+  .animate-toast-progress {
+    animation: none;
+  }
+}
+

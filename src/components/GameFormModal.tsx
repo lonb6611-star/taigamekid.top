@@ -1,8 +1,15 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { SAMPLE_COVER_OPTIONS } from '../data/seedGames';
 import { GameCategory, GameItem } from '../types/game';
 import { GameCoverImage } from './GameCoverImage';
+
+const SAMPLE_COVER_OPTIONS = [
+  { label: 'Hành động Cyber', url: '/src/assets/images/cover_cyber_action_1795322030078.jpg' },
+  { label: 'Sinh tồn Băng giá', url: '/src/assets/images/cover_frost_survival_1795322030299.jpg' },
+  { label: 'Nhập vai Giả tưởng', url: '/src/assets/images/cover_astral_rpg_1795322029827.jpg' },
+  { label: 'Thể thao Bóng đá', url: '/src/assets/images/cover_apex_sports_1795322030003.jpg' },
+  { label: 'Phiêu lưu Indie', url: '/src/assets/images/cover_hollow_adventure_1795322029805.jpg' },
+];
 
 export interface GameFormInput {
   title: string;
@@ -132,7 +139,7 @@ export function GameFormModal({ isOpen, editingGame, onClose, onSubmit }: GameFo
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ví dụ: Elden Ring: Shadow Edition"
-                className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 text-base sm:text-sm text-white placeholder:text-slate-500 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
               />
             </div>
 
@@ -175,7 +182,7 @@ export function GameFormModal({ isOpen, editingGame, onClose, onSubmit }: GameFo
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
                 placeholder="Hành động"
-                className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 text-base sm:text-sm text-white placeholder:text-slate-500 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
               />
               <datalist id="genre-presets-list">
                 {GENRE_PRESETS.map((g) => (
@@ -196,7 +203,7 @@ export function GameFormModal({ isOpen, editingGame, onClose, onSubmit }: GameFo
                   value={version}
                   onChange={(e) => setVersion(e.target.value)}
                   placeholder="v1.0.0"
-                  className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 font-mono text-sm text-white focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                  className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 font-mono text-base sm:text-sm text-white focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
                 />
               </div>
 
@@ -211,7 +218,7 @@ export function GameFormModal({ isOpen, editingGame, onClose, onSubmit }: GameFo
                   value={size}
                   onChange={(e) => setSize(e.target.value)}
                   placeholder="24.5 GB"
-                  className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 font-mono text-sm text-white focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                  className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 font-mono text-base sm:text-sm text-white focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
                 />
               </div>
             </div>
@@ -229,7 +236,7 @@ export function GameFormModal({ isOpen, editingGame, onClose, onSubmit }: GameFo
                 value={coverUrl}
                 onChange={(e) => setCoverUrl(e.target.value)}
                 placeholder="https://... hoặc chọn ảnh mẫu bên dưới"
-                className="w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                className="w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 text-base sm:text-sm text-white placeholder:text-slate-500 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
               />
               <div className="flex flex-wrap gap-1.5">
                 {SAMPLE_COVER_OPTIONS.map((opt) => (
@@ -273,7 +280,7 @@ export function GameFormModal({ isOpen, editingGame, onClose, onSubmit }: GameFo
               value={downloadUrl}
               onChange={(e) => setDownloadUrl(e.target.value)}
               placeholder="https://cdn.example.com/game-setup.zip"
-              className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 font-mono text-xs text-white placeholder:text-slate-500 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+              className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 font-mono text-base sm:text-xs text-white placeholder:text-slate-500 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
             />
           </div>
 
@@ -288,7 +295,7 @@ export function GameFormModal({ isOpen, editingGame, onClose, onSubmit }: GameFo
               value={review}
               onChange={(e) => setReview(e.target.value)}
               placeholder="Viết đánh giá về cốt truyện, đồ họa, lối chơi và cấu hình đề nghị..."
-              className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 text-sm leading-relaxed text-white placeholder:text-slate-500 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+              className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 text-base sm:text-sm leading-relaxed text-white placeholder:text-slate-500 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
             />
           </div>
 
@@ -303,7 +310,7 @@ export function GameFormModal({ isOpen, editingGame, onClose, onSubmit }: GameFo
               value={installStepsText}
               onChange={(e) => setInstallStepsText(e.target.value)}
               placeholder="Bước 1: Tải file nén...&#10;Bước 2: Giải nén...&#10;Bước 3: Chạy file..."
-              className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 text-sm leading-relaxed text-white placeholder:text-slate-500 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+              className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#07080D] px-3.5 py-2.5 text-base sm:text-sm leading-relaxed text-white placeholder:text-slate-500 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
             />
           </div>
 

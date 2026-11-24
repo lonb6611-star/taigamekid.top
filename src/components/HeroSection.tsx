@@ -1,7 +1,8 @@
 import { ArrowDownRight, ShieldCheck } from 'lucide-react';
-import { HERO_BANNER_IMAGE } from '../data/seedGames';
 import { GameItem } from '../types/game';
 import { GameCoverImage } from './GameCoverImage';
+
+const HERO_BANNER_IMAGE = '/src/assets/images/hero_gaming_setup_1795322029835.jpg';
 
 interface HeroSectionProps {
   totalGames: number;
@@ -28,26 +29,24 @@ export function HeroSection({
         aria-hidden="true"
       />
 
-      <div className="mx-auto max-w-[1200px] px-4 py-10 sm:px-6 lg:py-14">
-        <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-12 lg:gap-10">
+      <div className="mx-auto max-w-[1200px] px-4 py-7 sm:px-6 sm:py-9 lg:py-11">
+        <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12 lg:gap-10">
           {/* Left column: Headline & primary CTA */}
           <div className="flex flex-col justify-between lg:col-span-6">
-            <div className="space-y-5">
+            <div className="space-y-4">
               <p className="text-xs font-medium tracking-wide text-cyan-300">
-                Kho Game PC Miễn Phí · Kiểm duyệt an toàn · {totalGames} tựa game sẵn sàng
+                Kho Game PC Miễn Phí · Kiểm duyệt an toàn · {totalGames} tựa game
               </p>
 
-              <h1 className="font-display text-3xl font-bold leading-[1.12] tracking-tight text-white sm:text-4xl lg:text-[2.85rem] [text-wrap:balance]">
+              <h1 className="font-display text-3xl font-bold leading-[1.12] tracking-tight text-white sm:text-4xl lg:text-[2.75rem] [text-wrap:balance]">
                 Tải game chất lượng cao,{' '}
                 <span className="bg-gradient-to-r from-cyan-300 via-cyan-200 to-purple-400 bg-clip-text text-transparent">
                   nhanh gọn và an toàn
                 </span>
               </h1>
 
-              <p className="max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base">
-                Khám phá kho trò chơi được tuyển chọn kỹ lưỡng tại taigamekid. Mỗi tựa game đều đi
-                kèm bài đánh giá chi tiết, hướng dẫn cài đặt từng bước dễ hiểu và liên kết tải tốc
-                độ cao.
+              <p className="max-w-xl text-sm leading-relaxed text-slate-300 sm:text-[15px]">
+                Tuyển chọn game kèm đánh giá chi tiết, hướng dẫn cài đặt từng bước và link tải tốc độ cao.
               </p>
             </div>
 
@@ -82,11 +81,12 @@ export function HeroSection({
 
           {/* Right column: Full-height visual showcase */}
           <div className="lg:col-span-6">
-            <div className="relative h-64 w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0E111A] neon-border-cyan sm:h-80 lg:h-full lg:min-h-[340px]">
+            <div className="relative h-56 w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0E111A] neon-border-cyan sm:h-72 lg:h-full lg:min-h-[300px]">
               <GameCoverImage
                 src={HERO_BANNER_IMAGE}
                 alt="Không gian trải nghiệm game hiện đại taigamekid"
                 title="taigamekid Showcase"
+                priority
                 className="h-full w-full object-cover"
               />
               <div

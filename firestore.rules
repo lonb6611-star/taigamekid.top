@@ -1,0 +1,375 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net: Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // =========================================================================
+    // Primitive Helpers (Phase 3)
+    // =========================================================================
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isVerifiedUser() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isVerifiedUser() && (
+        request.auth.token.email == 'lonb6611@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // =========================================================================
+    // Entity Validation Blueprints (Anti-Update-Gap)
+    // =========================================================================
+    function isValidGame(data, gameId) {
+      return data.keys().hasAll([
+          'id', 'title', 'coverUrl', 'category', 'genre', 'version',
+          'size', 'downloadUrl', 'review', 'installGuide', 'downloadsCount', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'title', 'coverUrl', 'category', 'genre', 'version',
+          'size', 'downloadUrl', 'review', 'installGuide', 'downloadsCount', 'updatedAt'
+        ])
+        && data.id is string && data.id == gameId && isValidId(data.id)
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 160
+        && data.coverUrl is string && data.coverUrl.size() <= 1000
+        && data.category is string && data.category in ['hack', 'normal']
+        && data.genre is string && data.genre.size() >= 1 && data.genre.size() <= 60
+        && data.version is string && data.version.size() >= 1 && data.version.size() <= 40
+        && data.size is string && data.size.size() >= 1 && data.size.size() <= 40
+        && data.downloadUrl is string && data.downloadUrl.size() >= 1 && data.downloadUrl.size() <= 1000
+        && data.review is string && data.review.size() <= 10000
+        && data.installGuide is list && data.installGuide.size() <= 30
+        && (data.installGuide.size() == 0 || (data.installGuide[0] is string && data.installGuide[0].size() <= 500))
+        && data.downloadsCount is int && data.downloadsCount >= 0 && data.downloadsCount <= 100000000
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidEarnLink(data, linkId) {
+      return data.keys().hasAll([
+          'id', 'title', 'description', 'url', 'rewardPerPass',
+          'maxPasses', 'completedCount', 'requiresCode', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'title', 'description', 'url', 'rewardPerPass',
+          'maxPasses', 'completedCount', 'requiresCode', 'updatedAt'
+        ])
+        && data.id is string && data.id == linkId && isValidId(data.id)
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 160
+        && data.description is string && data.description.size() <= 1000
+        && data.url is string && data.url.size() >= 1 && data.url.size() <= 1000
+        && data.rewardPerPass is int && data.rewardPerPass >= 0 && data.rewardPerPass <= 10000000
+        && data.maxPasses is int && data.maxPasses >= 1 && data.maxPasses <= 100000
+        && data.completedCount is int && data.completedCount >= 0 && data.completedCount <= 100000000
+        && data.requiresCode is bool
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidEarnLinkSecret(data, linkId) {
+      return data.keys().hasAll(['linkId', 'passCode', 'updatedAt'])
+        && data.keys().hasOnly(['linkId', 'passCode', 'updatedAt'])
+        && data.linkId is string && data.linkId == linkId && isValidId(data.linkId)
+        && data.passCode is string && data.passCode.size() >= 2 && data.passCode.size() <= 64
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidUserProfile(data, userId) {
+      return data.keys().hasAll([
+          'uid', 'email', 'displayName', 'role', 'balance',
+          'completedTasks', 'earnPasses', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'uid', 'email', 'displayName', 'role', 'balance',
+          'completedTasks', 'earnPasses', 'lastClaimTxId', 'createdAt', 'updatedAt'
+        ])
+        && data.uid is string && data.uid == userId && isValidId(data.uid)
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 160
+        && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 80
+        && data.role is string && data.role in ['admin', 'user']
+        && data.balance is int && data.balance >= 0 && data.balance <= 1000000000
+        && data.completedTasks is int && data.completedTasks >= 0 && data.completedTasks <= 1000000
+        && data.earnPasses is map && data.earnPasses.size() <= 500
+        && (!('lastClaimTxId' in data) || (data.lastClaimTxId is string && isValidId(data.lastClaimTxId)))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidTransaction(data, userId, txId) {
+      return data.keys().hasAll([
+          'id', 'userId', 'linkId', 'linkTitle', 'amount', 'submittedCode', 'type', 'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'userId', 'linkId', 'linkTitle', 'amount', 'submittedCode', 'type', 'createdAt'
+        ])
+        && data.id is string && data.id == txId && isValidId(data.id)
+        && data.userId is string && data.userId == userId && isValidId(data.userId)
+        && data.linkId is string && isValidId(data.linkId)
+        && data.linkTitle is string && data.linkTitle.size() >= 1 && data.linkTitle.size() <= 160
+        && data.amount is int && data.amount >= 0 && data.amount <= 10000000
+        && data.submittedCode is string && data.submittedCode.size() >= 2 && data.submittedCode.size() <= 64
+        && data.type is string && data.type == 'earn'
+        && data.createdAt is timestamp;
+    }
+
+    function isValidLeaderboardEntry(data, userId) {
+      return data.keys().hasAll(['uid', 'displayName', 'balance', 'completedTasks', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'displayName', 'balance', 'completedTasks', 'updatedAt'])
+        && data.uid is string && data.uid == userId && isValidId(data.uid)
+        && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 80
+        && data.balance is int && data.balance >= 0 && data.balance <= 1000000000
+        && data.completedTasks is int && data.completedTasks >= 0 && data.completedTasks <= 1000000
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidSiteMeta(data) {
+      return data.keys().hasAll(['countdownEndTime', 'serverRevision', 'lastUpdatedAt'])
+        && data.keys().hasOnly([
+          'countdownEndTime', 'serverRevision', 'lastUpdatedAt',
+          'maintenanceActive', 'maintenanceEndTime', 'maintenanceMessage'
+        ])
+        && data.countdownEndTime is int && data.countdownEndTime > 0
+        && data.serverRevision is int && data.serverRevision >= 1
+        && data.lastUpdatedAt is timestamp
+        && (!('maintenanceActive' in data) || data.maintenanceActive is bool)
+        && (!('maintenanceEndTime' in data) || (data.maintenanceEndTime is int && data.maintenanceEndTime >= 0))
+        && (!('maintenanceMessage' in data) || (data.maintenanceMessage is string && data.maintenanceMessage.size() <= 300));
+    }
+
+    function isValidEarnPassesIncrement(userId, txId) {
+      let txData = getAfter(/databases/$(database)/documents/users/$(userId)/transactions/$(txId)).data;
+      let linkId = txData.linkId;
+      let prevCount = (linkId in existing().earnPasses) ? existing().earnPasses[linkId] : 0;
+      return incoming().earnPasses.diff(existing().earnPasses).affectedKeys().hasOnly([linkId])
+        && (linkId in incoming().earnPasses)
+        && incoming().earnPasses[linkId] is int
+        && incoming().earnPasses[linkId] == prevCount + 1;
+    }
+
+    // =========================================================================
+    // Collection Rules
+    // =========================================================================
+
+    // Connection check document (read-only ping)
+    match /test/{docId} {
+      allow get: if isValidId(docId);
+      allow list, create, update, delete: if false;
+    }
+
+    // Admin registry (read-only to owner or admin)
+    match /admins/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list, create, update, delete: if false;
+    }
+
+    // Public game catalog (zero PII)
+    match /games/{gameId} {
+      allow get: if isValidId(gameId);
+      allow list: if true;
+      allow create: if isAdmin()
+        && isValidId(gameId)
+        && isValidGame(incoming(), gameId)
+        && incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser()
+        && isValidId(gameId)
+        && isValidGame(incoming(), gameId)
+        && (
+          (isAdmin() && incoming().updatedAt == request.time) ||
+          (
+            incoming().diff(existing()).affectedKeys().hasOnly(['downloadsCount'])
+            && incoming().downloadsCount == existing().downloadsCount + 1
+            && incoming().updatedAt == existing().updatedAt
+          )
+        );
+      allow delete: if isAdmin() && isValidId(gameId);
+    }
+
+    // Public earn-link tasks (zero passCode secrets)
+    match /earnLinks/{linkId} {
+      allow get: if isValidId(linkId);
+      allow list: if true;
+      allow create: if isAdmin()
+        && isValidId(linkId)
+        && isValidEarnLink(incoming(), linkId)
+        && incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser()
+        && isValidId(linkId)
+        && isValidEarnLink(incoming(), linkId)
+        && (
+          (isAdmin() && incoming().updatedAt == request.time) ||
+          (
+            incoming().diff(existing()).affectedKeys().hasOnly(['completedCount'])
+            && incoming().completedCount == existing().completedCount + 1
+            && incoming().updatedAt == existing().updatedAt
+          )
+        );
+      allow delete: if isAdmin() && isValidId(linkId);
+    }
+
+    // Admin-only verification passCodes (never readable by regular users)
+    match /earnLinkSecrets/{linkId} {
+      allow get: if isValidId(linkId) && isAdmin();
+      allow list: if isAdmin();
+      allow create: if isAdmin()
+        && isValidId(linkId)
+        && isValidEarnLinkSecret(incoming(), linkId)
+        && incoming().updatedAt == request.time;
+      allow update: if isAdmin()
+        && isValidId(linkId)
+        && isValidEarnLinkSecret(incoming(), linkId)
+        && incoming().updatedAt == request.time;
+      allow delete: if isAdmin() && isValidId(linkId);
+    }
+
+    // Private user profiles (strict PII isolation)
+    match /users/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isVerifiedUser()
+        && isValidId(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (
+            isOwner(userId)
+            && incoming().email == request.auth.token.email
+            && incoming().role == 'user'
+            && incoming().balance == 0
+            && incoming().completedTasks == 0
+            && incoming().earnPasses.size() == 0
+          )
+        );
+      allow update: if isVerifiedUser()
+        && isValidId(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (
+            isOwner(userId)
+            && incoming().role == existing().role
+            && incoming().email == existing().email
+            && (
+              // Action 1: Display name profile update
+              incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'updatedAt']) ||
+              // Action 2: Atomic verified earn-link reward claim
+              (
+                incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'completedTasks', 'earnPasses', 'lastClaimTxId', 'updatedAt'])
+                && ('lastClaimTxId' in incoming())
+                && existsAfter(/databases/$(database)/documents/users/$(userId)/transactions/$(incoming().lastClaimTxId))
+                && incoming().balance == existing().balance + getAfter(/databases/$(database)/documents/users/$(userId)/transactions/$(incoming().lastClaimTxId)).data.amount
+                && incoming().completedTasks == existing().completedTasks + 1
+                && isValidEarnPassesIncrement(userId, incoming().lastClaimTxId)
+              )
+            )
+          )
+        );
+      allow delete: if isAdmin() && isValidId(userId);
+
+      // User private transaction history (subcollection)
+      match /transactions/{txId} {
+        allow get: if isValidId(userId) && isValidId(txId) && (isOwner(userId) || isAdmin());
+        allow list: if (isOwner(userId) && resource.data.userId == request.auth.uid) || isAdmin();
+        allow create: if isVerifiedUser()
+          && isValidId(userId)
+          && isValidId(txId)
+          && isOwner(userId)
+          && isValidTransaction(incoming(), userId, txId)
+          && incoming().createdAt == request.time
+          && exists(/databases/$(database)/documents/earnLinks/$(incoming().linkId))
+          && get(/databases/$(database)/documents/earnLinks/$(incoming().linkId)).data.rewardPerPass == incoming().amount
+          && get(/databases/$(database)/documents/earnLinkSecrets/$(incoming().linkId)).data.passCode.lower() == incoming().submittedCode.lower()
+          && (
+            !(incoming().linkId in get(/databases/$(database)/documents/users/$(userId)).data.earnPasses) ||
+            get(/databases/$(database)/documents/users/$(userId)).data.earnPasses[incoming().linkId] < get(/databases/$(database)/documents/earnLinks/$(incoming().linkId)).data.maxPasses
+          )
+          && getAfter(/databases/$(database)/documents/users/$(userId)).data.lastClaimTxId == txId;
+        allow update: if isAdmin()
+          && isValidId(userId)
+          && isValidId(txId)
+          && isValidTransaction(incoming(), userId, txId);
+        allow delete: if isAdmin() && isValidId(userId) && isValidId(txId);
+      }
+    }
+
+    // Public non-PII Top 10 balance leaderboard
+    match /leaderboard/{userId} {
+      allow get: if isValidId(userId);
+      allow list: if true;
+      allow create: if isVerifiedUser()
+        && isValidId(userId)
+        && isValidLeaderboardEntry(incoming(), userId)
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (
+            isOwner(userId)
+            && incoming().balance == 0
+            && incoming().completedTasks == 0
+          )
+        );
+      allow update: if isVerifiedUser()
+        && isValidId(userId)
+        && isValidLeaderboardEntry(incoming(), userId)
+        && incoming().uid == existing().uid
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (
+            isOwner(userId)
+            && incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'completedTasks', 'displayName', 'updatedAt'])
+            && getAfter(/databases/$(database)/documents/users/$(userId)).data.balance == incoming().balance
+            && getAfter(/databases/$(database)/documents/users/$(userId)).data.completedTasks == incoming().completedTasks
+          )
+        );
+      allow delete: if isAdmin() && isValidId(userId);
+    }
+
+    // Global server cycle & revision metadata (public get, strict update)
+    match /siteMeta/{metaId} {
+      allow get: if metaId == 'global';
+      allow list: if false;
+      allow create: if isAdmin()
+        && metaId == 'global'
+        && isValidSiteMeta(incoming())
+        && incoming().lastUpdatedAt == request.time;
+      allow update: if isVerifiedUser()
+        && metaId == 'global'
+        && isValidSiteMeta(incoming())
+        && incoming().lastUpdatedAt == request.time
+        && (
+          isAdmin() ||
+          (
+            incoming().diff(existing()).affectedKeys().hasOnly(['countdownEndTime', 'serverRevision', 'lastUpdatedAt'])
+            && incoming().serverRevision == existing().serverRevision + 1
+          )
+        );
+      allow delete: if false;
+    }
+  }
+}

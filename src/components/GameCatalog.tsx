@@ -122,20 +122,15 @@ export function GameCatalog({ games, onSelectGame }: GameCatalogProps) {
   );
 
   return (
-    <section id="catalog-section" className="mx-auto max-w-[1200px] px-4 py-12 sm:px-6 lg:py-16">
+    <section id="catalog-section" className="mx-auto max-w-[1200px] px-4 py-9 sm:px-6 lg:py-12">
       {/* Header + Search + Primary Section & Genre Filter Bar */}
-      <div className="flex flex-col gap-6 border-b border-white/10 pb-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              Kho Game Tuyển Chọn
-            </h2>
-            <p className="mt-1.5 text-sm text-slate-400">
-              Chia rõ Mục 1: Hack và Mục 2: Game thường, hỗ trợ tìm kiếm và lọc nhanh theo thể loại.
-            </p>
-          </div>
+      <div className="flex flex-col gap-4 border-b border-white/10 pb-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            Kho Game Tuyển Chọn
+          </h2>
 
-          {/* Search box */}
+          {/* Search box (text-base on mobile prevents iOS Safari auto-zoom) */}
           <div className="relative w-full md:w-80">
             <Search
               className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
@@ -147,21 +142,21 @@ export function GameCatalog({ games, onSelectGame }: GameCatalogProps) {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Tìm tên game..."
               aria-label="Tìm kiếm tên game"
-              className="w-full rounded-xl border border-white/10 bg-[#0D1019] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 transition-colors focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+              className="w-full rounded-xl border border-white/10 bg-[#0D1019] py-2.5 pl-10 pr-4 text-base sm:text-sm text-white placeholder:text-slate-500 transition-colors focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
             />
           </div>
         </div>
 
-        {/* Primary Category Section Tabs (Mục 1: Hack / Mục 2: Game thường) */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        {/* Primary Category Section Tabs (Mục 1: Hack / Mục 2: Game thường) + Single-Row Genre Strip */}
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div
-            className="inline-flex w-fit flex-wrap items-center gap-1 rounded-xl border border-white/10 bg-[#0A0D15] p-1"
+            className="inline-flex w-fit max-w-full flex-nowrap overflow-x-auto no-scrollbar items-center gap-1 rounded-xl border border-white/10 bg-[#0A0D15] p-1"
             role="tablist"
             aria-label="Chọn phân mục game"
           >
             {(
               [
-                { id: 'all', label: 'Tất cả mục' },
+                { id: 'all', label: 'Tất cả' },
                 { id: 'hack', label: 'Mục 1: Hack' },
                 { id: 'normal', label: 'Mục 2: Game thường' },
               ] as const
@@ -188,9 +183,9 @@ export function GameCatalog({ games, onSelectGame }: GameCatalogProps) {
             })}
           </div>
 
-          {/* Genre segmented filter buttons */}
+          {/* Genre segmented filter buttons (single scrollable row on mobile) */}
           <div
-            className="flex flex-wrap items-center gap-2"
+            className="flex flex-nowrap sm:flex-wrap items-center gap-2 overflow-x-auto no-scrollbar pb-0.5 sm:pb-0"
             role="tablist"
             aria-label="Lọc theo thể loại game"
           >
@@ -203,7 +198,7 @@ export function GameCatalog({ games, onSelectGame }: GameCatalogProps) {
                   role="tab"
                   aria-selected={isActive}
                   onClick={() => setSelectedGenre(genre)}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+                  className={`rounded-lg px-3 py-2 text-xs font-medium transition-all whitespace-nowrap shrink-0 cursor-pointer ${
                     isActive
                       ? 'border border-cyan-400/60 bg-cyan-500/15 text-cyan-200'
                       : 'border border-white/10 bg-[#0D1019] text-slate-400 hover:border-white/20 hover:text-slate-200'

@@ -10,6 +10,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { GAME_CATEGORY_LABELS, GameItem, UserAccount } from '../types/game';
+import { sanitizeHref } from '../utils/url';
 import { GameCoverImage } from './GameCoverImage';
 
 interface GameDetailViewProps {
@@ -17,7 +18,7 @@ interface GameDetailViewProps {
   currentUser: UserAccount | null;
   onBack: () => void;
   onRequireAuth: () => void;
-  onRecordDownload: (gameId: string) => void;
+  onRecordDownload: (gameId: string) => Promise<void>;
 }
 
 export function GameDetailView({
@@ -29,19 +30,20 @@ export function GameDetailView({
 }: GameDetailViewProps) {
   const [downloadUnlocked, setDownloadUnlocked] = useState(false);
   const [copied, setCopied] = useState(false);
+  const safeDownloadHref = sanitizeHref(game.downloadUrl);
 
-  const handleDownloadClick = () => {
+  const handleDownloadClick = async () => {
     if (!currentUser) {
       onRequireAuth();
       return;
     }
-    onRecordDownload(game.id);
+    await onRecordDownload(game.id);
     setDownloadUnlocked(true);
   };
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(game.downloadUrl);
+      await navigator.clipboard.writeText(safeDownloadHref);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -76,6 +78,7 @@ export function GameDetailView({
                 src={game.coverUrl}
                 alt={`Ảnh bìa ${game.title}`}
                 title={game.title}
+                priority
                 className="h-full w-full object-cover"
               />
             </div>
@@ -197,7 +200,7 @@ export function GameDetailView({
 
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <a
-                    href={game.downloadUrl || '#'}
+                    href={safeDownloadHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-cyan-500 px-4 py-2.5 text-xs font-semibold text-slate-950 transition-colors hover:bg-cyan-400"
